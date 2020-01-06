@@ -17,11 +17,11 @@ class Node:
     def __str__(self):
         return self.track_info['name'] + ' - ' +  self.track_info['artists'][0]['name']
     
-    def listened(self, other):
-        self.distances[other.track_id] += 1
-        other.distances[self.track_id] += 1
-        if self.distances[other.track_id] != other.distances[self.track_id]:
-            print(f'asymettric distances detected between {self} and {other}')
+    def listened(self, previous):
+        self.distances[previous.track_id] += 1
+        previous.distances[self.track_id] += 1
+        if self.distances[previous.track_id] != previous.distances[self.track_id]:
+            print(f'asymettric distances detected between {self} and {previous}')
 
 
 class Graph:
@@ -32,6 +32,15 @@ class Graph:
     
     def __repr__(self):
         return self.nodes
+    
+    def __str__(self):
+        string = ''
+
+        for ynode in self.nodes.values():
+            string += ynode.track_id + '\t' + ' '.join(str(ynode.distances[xnode.track_id]) for xnode in self.nodes.values()) + '\n'
+        
+        return string
+
     
     def add_node(self, new_node):
         if new_node.track_id in self.nodes:
@@ -82,8 +91,11 @@ def main(graph):
 
     current_node = Node(pb['item'])
     print(current_node)
+    last_listened_node = current_node
 
     graph.add_node(current_node)
+
+    print(graph)
 
 
     wait_secs = 5
@@ -94,20 +106,25 @@ def main(graph):
         pb = sp.current_playback()
         if pb is not None:
             if pb['item']['id'] != current_node.track_id:
-
                 new_node = Node(pb['item'])
+                print(new_node)
                 graph.add_node(new_node)
 
                 if listening_duration_millis < current_node.track_duration_millis / 2:
                     print('skipped early')
                 else:
                     print('listened to a lot')
+                    if last_listened_node != current_node:
+                        current_node.listened(last_listened_node)
+                        print(current_node.distances[last_listened_node.track_id])
+                    else:
+                        print('first song in the chain, not updating distance')
+
+                    last_listened_node = current_node
 
                 current_node = new_node
                 listening_duration_millis = 0
-                print(current_node)
-
-
+                
             time.sleep(wait_secs)
             if pb['is_playing']:
                 listening_duration_millis += wait_secs * 1000
