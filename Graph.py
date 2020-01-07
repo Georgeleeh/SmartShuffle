@@ -1,9 +1,11 @@
+from collections import OrderedDict
+
 class Node:
     def __init__(self, track_info, distances=None):
         self.track_info = track_info
 
         if distances is None:
-            distances = {}
+            distances = OrderedDict()
         self.distances = distances
     
     def __str__(self):
@@ -29,14 +31,11 @@ class Node:
         self.distances[previous.track_id] += 1
         previous.distances[self.track_id] = self.distances[previous.track_id]
 
-        if self.distances[previous.track_id] != previous.distances[self.track_id]:
-            print(f'asymettric distances detected between {self} and {previous}')
-
 
 class Graph:
     def __init__(self, nodes=None):
         if nodes is None:
-            nodes = {}
+            nodes = OrderedDict()
         self.nodes = nodes
     
     def __repr__(self):
@@ -54,6 +53,8 @@ class Graph:
         print('Running graph health check...')
         for node1 in self.nodes.values():
             for node2 in self.nodes.values():
+                if node1.distances[node2.track_id] != node2.distances[node1.track_id]:
+                    print(f'distances between {node1} and {node2} are asymmetrical. Please check this.')
                 if node2.track_id not in node1.distances:
                     print(f'node {node1} was missing distance to {node2}. Now fixed.')
                     node1.distances[node2.track_id] = 0
