@@ -50,19 +50,22 @@ class Graph:
         return string
     
     def health_check(self):
+        flag = True
         print('Running graph health check...')
         for node1 in self.nodes.values():
             for node2 in self.nodes.values():
                 if node1.distances[node2.track_id] != node2.distances[node1.track_id]:
                     print(f'distances between {node1} and {node2} are asymmetrical. Please check this.')
+                    flag = False
                 if node2.track_id not in node1.distances:
                     print(f'node {node1} was missing distance to {node2}. Now fixed.')
                     node1.distances[node2.track_id] = 0
+                    flag = False
+        if Flag: print('Healthy!')
  
     def add_node(self, new_node):
-        if new_node.track_id in self.nodes:
-            print('node already exists in graph')
-        else:
+        if new_node.track_id not in self.nodes:
+
             new_node.distances = {node.track_id:0 for node in self.nodes.values()}
 
             self.nodes[new_node.track_id] = new_node
@@ -72,6 +75,7 @@ class Graph:
                 node.distances[new_node.track_id] = 0
 
             print('new node added')
+            self.health_check()
     
     def clear_graph(self):
         self.nodes = {}
