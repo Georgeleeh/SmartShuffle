@@ -1,62 +1,3 @@
-class Node:
-    def __init__(self, track_info, distances=None):
-        self.track_info = track_info
-
-        if distances is None:
-            distances = {}
-        self.distances = distances
-    
-    @property
-    def track_id(self):
-        return self.track_info['id']
-    
-    @property
-    def track_duration_millis(self):
-        return self.track_info['duration_ms']
-    
-    def __str__(self):
-        return self.track_info['name'] + ' - ' +  self.track_info['artists'][0]['name']
-    
-    def listened(self, previous):
-        self.distances[previous.track_id] += 1
-        previous.distances[self.track_id] += 1
-        if self.distances[previous.track_id] != previous.distances[self.track_id]:
-            print(f'asymettric distances detected between {self} and {previous}')
-
-
-class Graph:
-    def __init__(self, nodes=None):
-        if nodes is None:
-            nodes = {}
-        self.nodes = nodes
-    
-    def __repr__(self):
-        return self.nodes
-    
-    def __str__(self):
-        string = ''
-
-        for ynode in self.nodes.values():
-            string += ynode.track_id + '\t' + ' '.join(str(ynode.distances[xnode.track_id]) for xnode in self.nodes.values()) + '\n'
-        
-        return string
-
-    
-    def add_node(self, new_node):
-        if new_node.track_id in self.nodes:
-            print('node already exists in graph')
-        else:
-            new_node.distances = {node.track_id:0 for node in self.nodes.values()}
-
-            self.nodes[new_node.track_id] = new_node
-
-            # add new node to distances of all existing nodes, with distance 0
-            for node in self.nodes.values():
-                node.distances[new_node.track_id] = 0
-            
-            print('new node added')
-
-
 import spotipy
 import configparser
 
@@ -66,6 +7,8 @@ import spotipy.util as util
 import time
 import pickle
 import sys, os
+
+from Graph import Graph, Node
 
 def main(graph):
     # Setup
@@ -85,6 +28,8 @@ def main(graph):
 
     pb = sp.current_playback()
 
+    print(graph)
+
     if pb is None:
         print('no playback found')
         return
@@ -94,9 +39,6 @@ def main(graph):
     last_listened_node = current_node
 
     graph.add_node(current_node)
-
-    print(graph)
-
 
     wait_secs = 5
     listening_duration_millis = 0
@@ -110,13 +52,12 @@ def main(graph):
                 print(new_node)
                 graph.add_node(new_node)
 
-                if listening_duration_millis < current_node.track_duration_millis / 2:
+                if listening_duration_millis < current_node.track_duration_millis / 4:
                     print('skipped early')
                 else:
                     print('listened to a lot')
                     if last_listened_node != current_node:
                         current_node.listened(last_listened_node)
-                        print(current_node.distances[last_listened_node.track_id])
                     else:
                         print('first song in the chain, not updating distance')
 
@@ -135,6 +76,8 @@ if __name__ == '__main__':
 
     pickle_file = open('pickle.pkl', 'rb')
     graph = pickle.load(pickle_file)
+    graph.health_check()
+    graph.clear_graph()
     pickle_file.close()
 
     try:
