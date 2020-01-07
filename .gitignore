@@ -1,3 +1,5 @@
 *.cfg
 venv/
 .cache-georgeleeh
+.vscode/
+__pycache__/
