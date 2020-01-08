@@ -43,10 +43,10 @@ class Graph:
         return self.nodes
     
     def __str__(self):
-        string = ''
+        string = '\t\t' + ' '.join(node.track_name[:1] for node in self.nodes.values()) + '\n'
 
         for ynode in self.nodes.values():
-            string += str(ynode.track_name[:5]) + '\t\t' + ' '.join(str(ynode.distances[xnode.track_id]) for xnode in self.nodes.values()) + '\t' + str(ynode.track_id) + '\n'
+            string += str(ynode.track_name[:5]) + '\t\t' + ' '.join(str(ynode.distances[xnode.track_id]) for xnode in self.nodes.values()) + '\n'
         
         return string
     
