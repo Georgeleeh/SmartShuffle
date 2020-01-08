@@ -37,13 +37,17 @@ def main(graph):
         print('no playback found')
         return
 
-    current_node = Node(pb['item'])
+    if pb['item']['id'] not in graph.nodes:
+        current_node = Node(pb['item'])
+        graph.add_node(current_node)
+    else:
+        current_node = graph.nodes[pb['item']['id']]
+
     print(current_node)
+
     last_listened_node = None
 
-    graph.add_node(current_node)
-
-    wait_secs = 1
+    DELAY_SECS = 1
     listening_duration_millis = 0
     while True:
 
@@ -77,7 +81,7 @@ def main(graph):
                 current_node = new_node
                 listening_duration_millis = 0
                 
-            time.sleep(wait_secs)
+            time.sleep(DELAY_SECS)
             listening_duration_millis = pb['progress_ms']
 
 
