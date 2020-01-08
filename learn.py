@@ -39,7 +39,7 @@ def main(graph):
 
     current_node = Node(pb['item'])
     print(current_node)
-    last_listened_node = current_node
+    last_listened_node = None
 
     graph.add_node(current_node)
 
@@ -60,11 +60,11 @@ def main(graph):
 
                 if listening_duration_millis < current_node.track_duration_millis / 2:
                     print('skipped early')
-                elif last_listened_node != current_node:
-                    print('listened to a lot')
-                    current_node.listened(last_listened_node)
+                else:
+                    if last_listened_node != None:
+                        print('listened to a lot')
+                        current_node.listened(last_listened_node)
                     graph.health_check()
-
                     last_listened_node = current_node
 
                 if pb['item']['id'] not in graph.nodes:
@@ -76,8 +76,6 @@ def main(graph):
 
                 current_node = new_node
                 listening_duration_millis = 0
-
-                print(graph)
                 
             time.sleep(wait_secs)
             listening_duration_millis = pb['progress_ms']
