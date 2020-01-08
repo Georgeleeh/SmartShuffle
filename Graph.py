@@ -1,3 +1,5 @@
+import pickle
+
 class Node:
     def __init__(self, track_info, distances=None):
         self.track_info = track_info
@@ -26,12 +28,8 @@ class Node:
         return self.track_info['duration_ms']
     
     def listened(self, previous):
-        print(self)
-        print(str(self.distances))
-        print(previous)
-        print(str(previous.distances))
-        print()
-        dist = self.distances[previous.track_id]
+        dist = self.distances.get(previous.track_id)
+        if dist is None: dist = 0
         self.distances[previous.track_id] = dist + 1
         previous.distances[self.track_id] = dist + 1
 
@@ -48,26 +46,37 @@ class Graph:
         string = ''
 
         for ynode in self.nodes.values():
-            string += str(ynode.track_id) + '\t' + ' '.join(str(ynode.distances[xnode.track_id]) for xnode in self.nodes.values()) + '\n'
+            string += str(ynode.track_name[:5]) + '\t\t' + ' '.join(str(ynode.distances[xnode.track_id]) for xnode in self.nodes.values()) + '\t' + str(ynode.track_id) + '\n'
         
         return string
     
     def print_edges(self):
         for node in self.nodes.values():
-            print(str(node1) + '-'*100)
-            for edge in node.distances.keys():
-                print(edge)
+            print(str(node.track_name) + '-'*100)
+            for key in node.distances.keys():
+                print(key, node.distances[key])
     
     def health_check(self):
+        flag = True
 
         for node1 in self.nodes.values():
             for node2 in self.nodes.values():
+
                 if node1.distances[node2.track_id] != node2.distances[node1.track_id]:
-                    print(f'distances between {node1} and {node2} are asymmetrical. Please check this.')
+                    print(f'WARNING: distances between {node1} and {node2} are asymmetrical.')
+                    flag=False
 
                 if node2.track_id not in node1.distances:
-                    print(f'node {node1} was missing distance to {node2}. Now fixed.')
-                    node1.distances[node2.track_id] = 0
+                    print(f'WARNING: node {node1} is missing distance to {node2}.')
+                    flag=False
+        
+        if flag: self.save_graph()
+    
+    def save_graph(self, filename='pickle.pkl'):
+        afile = open(filename, 'wb')
+        pickle.dump(self, afile)
+        afile.close()
+        #print('saved graph as pickle file')
 
  
     def add_node(self, new_node):
@@ -81,8 +90,10 @@ class Graph:
             for node in self.nodes.values():
                 node.distances[new_node.track_id] = 0
 
-            print('new node added')
             self.health_check()
+            print('new node added')
+        else:
+            print('node already present in graph')
     
     def clear_graph(self):
         self.nodes = {}
