@@ -30,6 +30,9 @@ def main(graph):
 
     print(graph)
 
+    print()
+    #graph.print_edges()
+
     if pb is None:
         print('no playback found')
         return
@@ -60,15 +63,21 @@ def main(graph):
                 elif last_listened_node != current_node:
                     print('listened to a lot')
                     current_node.listened(last_listened_node)
+                    graph.health_check()
 
                     last_listened_node = current_node
 
-                new_node = Node(pb['item'])
-                print(new_node)
-                graph.add_node(new_node)
+                if pb['item']['id'] not in graph.nodes:
+                    new_node = Node(pb['item'])
+                    print(new_node)
+                    graph.add_node(new_node)
+                else:
+                    new_node = graph.nodes[pb['item']['id']]
 
                 current_node = new_node
                 listening_duration_millis = 0
+
+                print(graph)
                 
             time.sleep(wait_secs)
             listening_duration_millis = pb['progress_ms']
