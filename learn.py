@@ -77,7 +77,8 @@ def main(graph):
                     graph.add_node(new_node)
                 else:
                     new_node = graph.nodes[pb['item']['id']]
-
+                    print(new_node)
+                
                 current_node = new_node
                 listening_duration_millis = 0
                 
@@ -87,9 +88,16 @@ def main(graph):
 
 
 if __name__ == '__main__':
+    FILENAME = 'merged.pkl'
 
-    pickle_file = open('pickle.pkl', 'rb')
+    try:
+        pickle_file = open(FILENAME, 'rb')
+    except (OSError, IOError) as e:
+        pickle.dump(Graph(), open(FILENAME, "wb"))
+        pickle_file = open(FILENAME, 'rb')
+
     graph = pickle.load(pickle_file)
+    graph.pickle_file = FILENAME
     user_input = input('Would you like to clear the graph? (Y/N)\n')
     if user_input.lower() == 'y':
         graph.clear_graph()
@@ -99,10 +107,7 @@ if __name__ == '__main__':
         main(graph)
     except KeyboardInterrupt:
         print('Interrupted')
-        afile = open('pickle.pkl', 'wb')
-        pickle.dump(graph, afile)
-        afile.close()
-        print('saved pickle.pkl')
+        graph.save_graph()
         try:
             sys.exit(0)
         except SystemExit:
