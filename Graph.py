@@ -7,6 +7,8 @@ class Node:
         if self_to_other is None:
             self_to_other = {}
         self.self_to_other = self_to_other
+
+        self.pickle_file = 'pickle.pkl'
     
     def __str__(self):
         return self.track_info['name'] + ' - ' +  self.track_info['artists'][0]['name']
@@ -67,12 +69,27 @@ class Graph:
         
         if flag: self.save_graph()
     
-    def save_graph(self, filename='pickle.pkl'):
-        afile = open(filename, 'wb')
+    def save_graph(self):
+        afile = open(self.pickle_file, 'wb')
         pickle.dump(self, afile)
         afile.close()
         #print('saved graph as pickle file')
+    
+    def merge_node(self, new_node):
+        if new_node.track_id not in self.nodes:
 
+            # check if new node has connection to old nodes. Connect nodes if not.
+            for node in self.nodes.values():
+                if new_node.self_to_other.get(node.track_id) is None:
+                    new_node.self_to_other[node.track_id] = 0
+            
+            # add the new node to the graph
+            self.nodes[new_node.track_id] = new_node
+
+            # check if old nodes have connection to new node. Connect nodes if not.
+            for node in self.nodes.values():
+                if node != new_node and node.self_to_other.get(new_node.track_id) is None:
+                    node.self_to_other[new_node.track_id] = 0
  
     def add_node(self, new_node):
         if new_node.track_id not in self.nodes:
