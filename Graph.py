@@ -8,7 +8,7 @@ class Node:
             self_to_other = {}
         self.self_to_other = self_to_other
 
-        self.pickle_file = 'pickle.pkl'
+        self.pickle_file = 'pickle_default_save.pkl'
     
     def __str__(self):
         return self.track_info['name'] + ' - ' +  self.track_info['artists'][0]['name']
