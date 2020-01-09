@@ -88,7 +88,7 @@ def main(graph):
 
 
 if __name__ == '__main__':
-    FILENAME = 'merged.pkl'
+    FILENAME = 'mypickle.pkl'
 
     try:
         pickle_file = open(FILENAME, 'rb')
@@ -98,9 +98,6 @@ if __name__ == '__main__':
 
     graph = pickle.load(pickle_file)
     graph.pickle_file = FILENAME
-    user_input = input('Would you like to clear the graph? (Y/N)\n')
-    if user_input.lower() == 'y':
-        graph.clear_graph()
     pickle_file.close()
 
     try:
