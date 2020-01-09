@@ -65,7 +65,7 @@ def main(graph):
                 if listening_duration_millis < current_node.track_duration_millis / 2:
                     print('skipped early')
                 else:
-                    if last_listened_node != None:
+                    if last_listened_node is not None:
                         print('listened to a lot')
                         current_node.listened(last_listened_node)
                     graph.health_check()
@@ -90,7 +90,6 @@ if __name__ == '__main__':
 
     pickle_file = open('pickle.pkl', 'rb')
     graph = pickle.load(pickle_file)
-    graph.health_check()
     user_input = input('Would you like to clear the graph? (Y/N)\n')
     if user_input.lower() == 'y':
         graph.clear_graph()
