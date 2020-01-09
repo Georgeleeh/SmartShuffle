@@ -1,12 +1,16 @@
 import pickle
 
 class Node:
-    def __init__(self, track_info, distances=None):
+    def __init__(self, track_info, self_to_other=None, other_to_self=None):
         self.track_info = track_info
 
-        if distances is None:
-            distances = {}
-        self.distances = distances
+        if self_to_other is None:
+            self_to_other = {}
+        self.self_to_other = self_to_other
+
+        if other_to_self is None:
+            other_to_self = {}
+        self.other_to_self = other_to_self
     
     def __str__(self):
         return self.track_info['name'] + ' - ' +  self.track_info['artists'][0]['name']
