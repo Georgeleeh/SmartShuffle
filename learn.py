@@ -28,13 +28,8 @@ def main(graph):
 
     pb = sp.current_playback()
 
-    print(graph)
-
-    print()
-    #graph.print_edges()
-
-    if pb is None:
-        print('no playback found')
+    if pb is None or pb.get('item') is None:
+        print('no song playback found')
         return
 
     if pb['item']['id'] not in graph.nodes:
@@ -59,8 +54,9 @@ def main(graph):
             sp = spotipy.Spotify(auth=token)
             pb = sp.current_playback()
 
-        if pb is not None:
-            if pb['item']['id'] != current_node.track_id:
+        if pb is not None and pb.get('item') is not None:
+            pb_song = pb['item']
+            if pb_song['id'] != current_node.track_id:
 
                 if listening_duration_millis < current_node.track_duration_millis / 2:
                     print('skipped early')
@@ -71,19 +67,19 @@ def main(graph):
                     graph.health_check()
                     last_listened_node = current_node
 
-                if pb['item']['id'] not in graph.nodes:
-                    new_node = Node(pb['item'])
-                    print(new_node)
+                if pb_song['id'] not in graph.nodes:
+                    new_node = Node(pb_song)
                     graph.add_node(new_node)
                 else:
-                    new_node = graph.nodes[pb['item']['id']]
-                    print(new_node)
+                    new_node = graph.nodes[pb_song['id']]
                 
                 current_node = new_node
+                print(current_node)
                 listening_duration_millis = 0
-                
-            time.sleep(DELAY_SECS)
+            
             listening_duration_millis = pb['progress_ms']
+        
+        time.sleep(DELAY_SECS)
 
 
 
