@@ -28,6 +28,8 @@ def main(graph):
 
     pb = sp.current_playback()
 
+    print(f"The graph currently contains {graph.size} nodes.\nThat's {graph.size*graph.size} connections, {graph.weighted_connections} of them are non-zero!")
+
     if pb is None or pb.get('item') is None:
         print('no song playback found')
         return
