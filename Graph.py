@@ -53,9 +53,16 @@ class Graph:
         string = '\t\t' + ' '.join(node.track_name[:1] for node in self.nodes.values()) + '\n'
 
         for ynode in self.nodes.values():
-            string += str(ynode.track_name[:5]) + '\t\t' + ' '.join(str(ynode.self_to_other.get(xnode.track_id)) if xnode != ynode else 'x' for xnode in self.nodes.values()) + '\n'
+            string += str(ynode.track_name[:7]) + '\t\t' + ' '.join(str(ynode.self_to_other.get(xnode.track_id)) if xnode != ynode else 'x' for xnode in self.nodes.values()) + '\n'
         
         return string
+    
+    @property
+    def size(self):
+        return len(self.nodes)
+    @property
+    def weighted_connections(self):
+        return len([weight for nodes in self.nodes.values() for weight in nodes.self_to_other.values() if weight != 0])
     
     def health_check(self):
         flag = True
