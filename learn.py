@@ -86,7 +86,7 @@ def main(graph):
 
 
 if __name__ == '__main__':
-    FILENAME = 'mypickle.pkl'
+    FILENAME = 'mypickle(LinkedList).pkl'
 
     try:
         pickle_file = open(FILENAME, 'rb')
