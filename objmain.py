@@ -1,13 +1,13 @@
 from Graph import Graph, Node
-import time
+import time, pickle
 
 class Engine:
     def __init__(self, config_file='config.cfg', pickle_file='objpickle.pkl', graph=None):
         self.config = config = configparser.ConfigParser()
-        self.config.read('config.cfg')
+        self.config.read('config.cfg')        
 
         if graph is None:
-            graph = Graph()
+            graph = Graph(pickle_file=pickle_file)
         self.graph = graph
 
         self.spotify = spotipy.Spotify(auth=self.token)
@@ -24,27 +24,26 @@ class Engine:
     def learn(self):
         pb = self.spotify.current_playback()
 
-        if pb is None:
+        if pb is None or pb.get('item') is None:
             print('no playback found')
             return
 
-        if pb['item']['id'] not in graph.nodes:
+        if pb['item']['id'] not in self.graph.nodes:
             current_node = Node(pb['item'])
-            graph.add_node(current_node)
+            self.graph.add_node(current_node)
         else:
-            current_node = graph.nodes[pb['item']['id']]
+            current_node = self.graph.nodes[pb['item']['id']]
 
         print(current_node)
 
         last_listened_node = None
 
         DELAY_SECS = 1
-
         listening_duration_millis = 0
         while True:
 
             # might need to refresh token here, trying without
-            self.spotify.current_playback()
+            pb = self.spotify.current_playback()
 
             if pb is not None:
                 if pb['item']['id'] != current_node.track_id:
@@ -52,7 +51,7 @@ class Engine:
                     if listening_duration_millis < current_node.track_duration_millis / 2:
                         print('skipped early')
                     else:
-                        if last_listened_node != None:
+                        if last_listened_node is not None:
                             print('listened to a lot')
                             current_node.listened(last_listened_node)
                         self.graph.health_check()
@@ -82,19 +81,12 @@ import spotipy.util as util
 import configparser
 
 
-def main():
-    engine = Engine()
+def main(pickle_file):
+    engine = Engine(pickle_file=pickle_file)
     engine.learn()
 
 
-
-
 if __name__ == '__main__':
-    try:
-        main()
-    except KeyboardInterrupt:
-        print('Interrupted')
-        try:
-            sys.exit(0)
-        except SystemExit:
-            os._exit(0)
+    FILENAME = 'mypickle.pkl'
+    main(FILENAME)
+
