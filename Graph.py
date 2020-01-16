@@ -7,8 +7,6 @@ class Node:
         if self_to_other is None:
             self_to_other = {}
         self.self_to_other = self_to_other
-
-        self.pickle_file = 'pickle_default_save.pkl'
     
     def __str__(self):
         return self.track_info['name'] + ' - ' +  self.track_info['artists'][0]['name']
@@ -41,10 +39,14 @@ class Node:
             previous.self_to_other[self.track_id] = dist + 1
 
 class Graph:
-    def __init__(self, nodes=None):
+    def __init__(self, nodes=None, pickle_file=None):
         if nodes is None:
             nodes = {}
         self.nodes = nodes
+
+        if pickle_file is None:
+            pickle_file = 'pickle_default_save.pkl'
+        self.pickle_file = pickle_file
     
     def __repr__(self):
         return self.nodes
