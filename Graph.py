@@ -33,10 +33,13 @@ class Node:
     def track_duration_millis(self):
         return self.track_info['duration_ms']
     
-    def listened(self, previous):
+    def skipped(self, previous):
         if self != previous:
             dist = previous.self_to_other.get(self.track_id)
-            previous.self_to_other[self.track_id] = dist + 1
+            if dist is None:
+                previous.self_to_other[self.track_id] = 1
+            else:
+                previous.self_to_other[self.track_id] = dist + 1
 
 class Graph:
     def __init__(self, nodes=None, pickle_file=None):
@@ -55,7 +58,7 @@ class Graph:
         string = '\t\t' + ' '.join(node.track_name[:1] for node in self.nodes.values()) + '\n'
 
         for ynode in self.nodes.values():
-            string += str(ynode.track_name[:7]) + '\t\t' + ' '.join(str(ynode.self_to_other.get(xnode.track_id)) if xnode != ynode else 'x' for xnode in self.nodes.values()) + '\n'
+            string += str(ynode.track_name[:7]) + '\t\t' + ' '.join(str(ynode.self_to_other.get(xnode.track_id)) if ynode.self_to_other.get(xnode.track_id) is not None else 'x' if ynode == xnode else '0' for xnode in self.nodes.values()) + '\n'
         
         return string
     
@@ -65,18 +68,7 @@ class Graph:
     @property
     def weighted_connections(self):
         return len([weight for nodes in self.nodes.values() for weight in nodes.self_to_other.values() if weight != 0])
-    
-    def health_check(self):
-        flag = True
 
-        for node1 in self.nodes.values():
-            for node2 in self.nodes.values():
-                if node1 != node2:
-                    if node2.track_id not in node1.self_to_other:
-                        print(f'WARNING: node {node1} is missing distance to {node2}.')
-                        flag=False
-        
-        if flag: self.save_graph()
     
     def save_graph(self):
         afile = open(self.pickle_file, 'wb')
@@ -99,22 +91,15 @@ class Graph:
             for node in self.nodes.values():
                 if node != new_node and node.self_to_other.get(new_node.track_id) is None:
                     node.self_to_other[new_node.track_id] = 0
+            
+            self.save_graph()
  
     def add_node(self, new_node):
         if new_node.track_id not in self.nodes:
-
-            # add existing nodes to new node distances
-            new_node.self_to_other = {node.track_id:0 for node in self.nodes.values()}
-
             # add the new node to the graph
             self.nodes[new_node.track_id] = new_node
 
-            # add new node to distances of all existing nodes, with distance 0
-            for node in self.nodes.values():
-                if node != new_node:
-                    node.self_to_other[new_node.track_id] = 0
-
-            self.health_check()
+            self.save_graph()
             print('new node added')
         else:
             print('node already present in graph')

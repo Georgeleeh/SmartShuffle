@@ -28,7 +28,9 @@ def main(graph):
 
     pb = sp.current_playback()
 
-    print(f"The graph currently contains {graph.size} nodes.\nThat's {graph.size*graph.size} connections, {graph.weighted_connections} of them are non-zero!")
+    print(graph, '\n\n')
+
+    print(f"The graph currently contains {graph.size} nodes.\nThat's {graph.size*graph.size} possible connections, {graph.weighted_connections} of them are non-zero!")
 
     if pb is None or pb.get('item') is None:
         print('no song playback found')
@@ -61,12 +63,12 @@ def main(graph):
             if pb_song['id'] != current_node.track_id:
 
                 if listening_duration_millis < current_node.track_duration_millis / 2:
-                    print('skipped early')
-                else:
                     if last_listened_node is not None:
-                        print('listened to a lot')
-                        current_node.listened(last_listened_node)
-                    graph.health_check()
+                        print('skipped early')
+                        current_node.skipped(last_listened_node)
+                    graph.save_graph()
+                else:
+                    print('listened to a lot')
                     last_listened_node = current_node
 
                 if pb_song['id'] not in graph.nodes:
@@ -85,7 +87,7 @@ def main(graph):
 
 
 if __name__ == '__main__':
-    FILENAME = 'mypickle.pkl'
+    FILENAME = 'mypickle(LinkedList).pkl'
 
     try:
         pickle_file = open(FILENAME, 'rb')
@@ -96,6 +98,8 @@ if __name__ == '__main__':
     graph = pickle.load(pickle_file)
     graph.pickle_file = FILENAME
     pickle_file.close()
+
+    #graph.clear_graph()
 
     try:
         main(graph)
