@@ -35,7 +35,7 @@ class Node:
     def track_duration_millis(self):
         return self.track_info['duration_ms']
     
-    def listened(self, previous):
+    def skipped(self, previous):
         if self != previous:
             dist = previous.self_to_other.get(self.track_id)
             if dist is None:
