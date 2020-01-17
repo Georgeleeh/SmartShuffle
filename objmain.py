@@ -10,6 +10,10 @@ class Engine:
             graph = Graph(pickle_file=pickle_file)
         self.graph = graph
 
+        print(graph, '\n\n')
+        print(f"The graph currently contains {graph.size} nodes.\nThat's {graph.size*graph.size} possible connections, {graph.weighted_connections} of them are non-zero!")
+
+
         self.spotify = spotipy.Spotify(auth=self.token)
 
     @property
@@ -49,12 +53,12 @@ class Engine:
                 if pb['item']['id'] != current_node.track_id:
 
                     if listening_duration_millis < current_node.track_duration_millis / 2:
+                        if last_listened_node is not None:
+                            current_node.skipped(last_listened_node)
+                            self.graph.save()
                         print('skipped early')
                     else:
-                        if last_listened_node is not None:
-                            print('listened to a lot')
-                            current_node.listened(last_listened_node)
-                        self.graph.health_check()
+                        print('listened to a lot')
                         last_listened_node = current_node
 
                     if pb['item']['id'] not in self.graph.nodes:
@@ -80,7 +84,7 @@ import spotipy.util as util
 import configparser
 
 if __name__ == '__main__':
-    FILENAME = 'mypickle.pkl'
+    FILENAME = 'mypickle(skips).pkl'
     engine = Engine(pickle_file=FILENAME)
     engine.learn()
 
