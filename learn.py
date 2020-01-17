@@ -63,12 +63,12 @@ def main(graph):
             if pb_song['id'] != current_node.track_id:
 
                 if listening_duration_millis < current_node.track_duration_millis / 2:
-                    print('skipped early')
-                else:
                     if last_listened_node is not None:
-                        print('listened to a lot')
-                        current_node.listened(last_listened_node)
+                        print('skipped early')
+                        current_node.skipped(last_listened_node)
                     graph.save_graph()
+                else:
+                    print('listened to a lot')
                     last_listened_node = current_node
 
                 if pb_song['id'] not in graph.nodes:
