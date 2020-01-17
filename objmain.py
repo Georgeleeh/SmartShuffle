@@ -77,16 +77,10 @@ class Engine:
 import spotipy
 import spotipy.oauth2 as oauth2
 import spotipy.util as util
-
 import configparser
-
-
-def main(pickle_file):
-    engine = Engine(pickle_file=pickle_file)
-    engine.learn()
-
 
 if __name__ == '__main__':
     FILENAME = 'mypickle.pkl'
-    main(FILENAME)
+    engine = Engine(pickle_file=FILENAME)
+    engine.learn()
 

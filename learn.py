@@ -84,7 +84,6 @@ def main(graph):
         time.sleep(DELAY_SECS)
 
 
-
 if __name__ == '__main__':
     FILENAME = 'mypickle.pkl'
 
@@ -107,4 +106,3 @@ if __name__ == '__main__':
             sys.exit(0)
         except SystemExit:
             os._exit(0)
-    
