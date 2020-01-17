@@ -40,6 +40,14 @@ class Node:
                 previous.self_to_other[self.track_id] = 1
             else:
                 previous.self_to_other[self.track_id] = dist + 1
+    
+    def listened(self, previous):
+        if self != previous:
+            dist = previous.self_to_other.get(self.track_id)
+            if dist is None:
+                previous.self_to_other[self.track_id] = 0
+            else:
+                previous.self_to_other[self.track_id] = dist
 
 class Graph:
     def __init__(self, nodes=None, pickle_file=None):
@@ -58,7 +66,7 @@ class Graph:
         string = '\t\t' + ' '.join(node.track_name[:1] for node in self.nodes.values()) + '\n'
 
         for ynode in self.nodes.values():
-            string += str(ynode.track_name[:7]) + '\t\t' + ' '.join(str(ynode.self_to_other.get(xnode.track_id)) if ynode.self_to_other.get(xnode.track_id) is not None else 'x' if ynode == xnode else '0' for xnode in self.nodes.values()) + '\n'
+            string += str(ynode.track_name[:7]) + '\t\t' + ' '.join(str(ynode.self_to_other.get(xnode.track_id)) if ynode.self_to_other.get(xnode.track_id) is not None else 'x' if ynode == xnode else 'n' for xnode in self.nodes.values()) + '\n'
         
         return string
     
@@ -67,7 +75,7 @@ class Graph:
         return len(self.nodes)
     @property
     def weighted_connections(self):
-        return len([weight for nodes in self.nodes.values() for weight in nodes.self_to_other.values() if weight != 0])
+        return len([weight for nodes in self.nodes.values() for weight in nodes.self_to_other.values() if weight is not None])
 
     
     def save(self):
@@ -104,6 +112,6 @@ class Graph:
         else:
             print('node already present in graph')
     
-    def clear_graph(self):
+    def clear(self):
         self.nodes = {}
         print('graph emptied')
