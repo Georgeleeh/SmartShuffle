@@ -70,7 +70,7 @@ class Graph:
         return len([weight for nodes in self.nodes.values() for weight in nodes.self_to_other.values() if weight != 0])
 
     
-    def save_graph(self):
+    def save(self):
         afile = open(self.pickle_file, 'wb')
         pickle.dump(self, afile)
         afile.close()
@@ -99,7 +99,7 @@ class Graph:
             # add the new node to the graph
             self.nodes[new_node.track_id] = new_node
 
-            self.save_graph()
+            self.save()
             print('new node added')
         else:
             print('node already present in graph')
