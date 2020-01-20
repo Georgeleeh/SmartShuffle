@@ -4,9 +4,7 @@ import configparser
 import spotipy.oauth2 as oauth2
 import spotipy.util as util
 
-import time
-import pickle
-import sys, os
+import time, pickle, sys, os, requests
 
 from Graph import Graph, Node
 
@@ -29,7 +27,7 @@ def main(graph):
     pb = sp.current_playback()
 
     print(graph, '\n\n')
-    print(f"The graph currently contains {graph.size} nodes.\nThat's {graph.size*graph.size-graph.size} possible connections, {graph.weighted_connections} of them are non-zero!")
+    print(f"The graph currently contains {graph.size} nodes.\nThat's {graph.size*graph.size-graph.size} possible connections, {graph.weighted_connections} of them are non-null!")
 
     if pb is None or pb.get('item') is None:
         print('no song playback found')
@@ -56,6 +54,11 @@ def main(graph):
             token = util.prompt_for_user_token(username, client_id=client_id, client_secret=client_secret, redirect_uri=redirect_uri, scope=scope)
             sp = spotipy.Spotify(auth=token)
             pb = sp.current_playback()
+        except requests.exceptions.ConnectionError:
+            print('CONNECTION ERROR')
+            last_listened_node = None
+            time.sleep(5)
+            
 
         if pb is not None and pb.get('item') is not None:
             pb_song = pb['item']
