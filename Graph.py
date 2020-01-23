@@ -77,7 +77,10 @@ class Graph:
     def weighted_connections(self):
         return len([weight for nodes in self.nodes.values() for weight in nodes.self_to_other.values() if weight is not None])
 
-    
+    def print_nodes(self):
+        for node in self.nodes.values():
+            print(f'{node.track_name[:7]}\t:\t{node.track_id}')
+
     def save(self):
         afile = open(self.pickle_file, 'wb')
         pickle.dump(self, afile)
@@ -115,3 +118,10 @@ class Graph:
     def clear(self):
         self.nodes = {}
         print('graph emptied')
+    
+    def delete_node(self, del_id):
+        del self.nodes[del_id]
+
+        for node in self.nodes.values():
+            if node.self_to_other.get(del_id) is not None:
+                del node.self_to_other[del_id]
