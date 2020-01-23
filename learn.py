@@ -26,9 +26,6 @@ def main(graph):
 
     pb = sp.current_playback()
 
-    print(graph, '\n\n')
-    print(f"The graph currently contains {graph.size} nodes.\nThat's {graph.size*graph.size-graph.size} possible connections, {graph.weighted_connections} of them are non-null!")
-
     if pb is None or pb.get('item') is None:
         print('no song playback found')
         return
@@ -105,12 +102,14 @@ if __name__ == '__main__':
     graph.pickle_file = FILENAME
     pickle_file.close()
 
-    #graph.clear()
+    print(f"The graph currently contains {graph.size} nodes.\nThat's {graph.size*graph.size-graph.size} possible connections, {graph.weighted_connections} of them are non-null. That's {int(graph.weighted_connections/(graph.size*graph.size-graph.size) * 100)}% coverage!")
 
     try:
         main(graph)
     except KeyboardInterrupt:
         print('Interrupted')
+        print(f"The graph currently contains {graph.size} nodes.\nThat's {graph.size*graph.size-graph.size} possible connections, {graph.weighted_connections} of them are non-null. That's {int(graph.weighted_connections/(graph.size*graph.size-graph.size) * 100)}% coverage!")
+
         graph.save()
         try:
             sys.exit(0)
