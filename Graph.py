@@ -37,17 +37,17 @@ class Node:
         if self != previous:
             dist = previous.self_to_other.get(self.track_id)
             if dist is None:
-                previous.self_to_other[self.track_id] = 1
+                previous.self_to_other[self.track_id] = 2
             else:
-                previous.self_to_other[self.track_id] = dist + 1
+                previous.self_to_other[self.track_id] = dist + 2
     
     def listened(self, previous):
         if self != previous:
             dist = previous.self_to_other.get(self.track_id)
-            if dist is None:
+            if dist is None or dist == 0:
                 previous.self_to_other[self.track_id] = 0
             else:
-                previous.self_to_other[self.track_id] = dist
+                previous.self_to_other[self.track_id] = dist - 1
 
 class Graph:
     def __init__(self, nodes=None, pickle_file=None):
